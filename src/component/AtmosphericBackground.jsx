@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function AtmosphericBackground({ condition = "Mostly Sunny", isLightningActive = true }) {
+export default function AtmosphericBackground({ condition = "Mostly Sunny" }) {
   const canvasRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 

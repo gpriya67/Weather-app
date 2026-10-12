@@ -9,7 +9,7 @@ import { soundManager } from "./AudioSynthesizer";
 const API_KEY = "4f2214a60bd7949dcb5650c052f42ea8";
 
 export default function Weather() {
-  // Live weather states matching the Dribbble screenshot exactly
+  // Live weather states matching the Dribbble screenshot
   const [cityInput, setCityInput] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [currentCity, setCurrentCity] = useState("New York");
@@ -29,7 +29,6 @@ export default function Weather() {
   const [sunsetTime, setSunsetTime] = useState("18:32");
   const [sunriseTimestamp, setSunriseTimestamp] = useState(null);
   const [sunsetTimestamp, setSunsetTimestamp] = useState(null);
-  const [timezoneOffset, setTimezoneOffset] = useState(0);
 
   // Status & Error handling states
   const [loading, setLoading] = useState(false);
@@ -39,7 +38,7 @@ export default function Weather() {
   const [currentDate, setCurrentDate] = useState("28 Aug");
   const [selectedDay, setSelectedDay] = useState("Thursday");
 
-  // Forecast list matching the screenshot
+  // Forecast list
   const [forecastList, setForecastList] = useState([
     { day: "Monday", temp: "26°", tempNum: 26, condition: "Mostly Sunny", icon: "sun-cloud" },
     { day: "Tuesday", temp: "28°", tempNum: 28, condition: "Mostly Sunny", icon: "sun-cloud" },
@@ -115,10 +114,10 @@ export default function Weather() {
       if (data.sys) {
         setSunriseTimestamp(data.sys.sunrise);
         setSunsetTimestamp(data.sys.sunset);
-        setTimezoneOffset(data.timezone || 0);
 
-        const srDate = new Date((data.sys.sunrise + data.timezone - new Date().getTimezoneOffset() * -60) * 1000);
-        const ssDate = new Date((data.sys.sunset + data.timezone - new Date().getTimezoneOffset() * -60) * 1000);
+        const tz = data.timezone || 0;
+        const srDate = new Date((data.sys.sunrise + tz - new Date().getTimezoneOffset() * -60) * 1000);
+        const ssDate = new Date((data.sys.sunset + tz - new Date().getTimezoneOffset() * -60) * 1000);
 
         const srH = String(srDate.getUTCHours()).padStart(2, "0");
         const srM = String(srDate.getUTCMinutes()).padStart(2, "0");
@@ -153,8 +152,45 @@ export default function Weather() {
       if (mData.current && mData.current.uv_index !== undefined) {
         setUvIndex(Math.round(mData.current.uv_index).toString());
       }
+
+      if (mData.daily && mData.daily.time) {
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const days = mData.daily.time.slice(0, 7).map((dateStr, idx) => {
+          const d = new Date(dateStr);
+          const dayName = dayNames[d.getDay()];
+          const maxTemp = Math.round(mData.daily.temperature_2m_max[idx]);
+          const wCode = mData.daily.weathercode[idx];
+
+          let icon = "sunny";
+          let condLabel = "Sunny";
+          if (wCode >= 95) {
+            icon = "storm";
+            condLabel = "Thunderstorm";
+          } else if (wCode >= 51 && wCode <= 82) {
+            icon = "rain";
+            condLabel = "Rain";
+          } else if (wCode >= 1 && wCode <= 3) {
+            icon = "sun-cloud";
+            condLabel = "Mostly Sunny";
+          } else if (wCode >= 45) {
+            icon = "cloudy";
+            condLabel = "Overcast";
+          }
+
+          return {
+            day: dayName,
+            temp: `${maxTemp}°`,
+            tempNum: maxTemp,
+            condition: condLabel,
+            icon,
+          };
+        });
+
+        // Use setForecastList to update forecast row dynamically
+        setForecastList(days);
+      }
     } catch (e) {
-      console.warn("UV fetch warning:", e);
+      console.warn("UV / Forecast notice:", e);
     }
   };
 
@@ -189,10 +225,10 @@ export default function Weather() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-2 sm:p-6 lg:p-10 select-none overflow-x-hidden font-sans">
       
-      {/* Dynamic atmospheric cloud background matching screenshot */}
+      {/* Dynamic atmospheric cloud background */}
       <AtmosphericBackground condition={weatherCondition} />
 
-      {/* Main Glassmorphism Dashboard Card (1:1 Dribbble Design) */}
+      {/* Main Glassmorphism Dashboard Card */}
       <main className="glass-panel relative z-10 w-full max-w-[1040px] rounded-[32px] p-6 sm:p-9 lg:p-11 flex flex-col justify-between shadow-2xl backdrop-blur-2xl transition-all duration-300">
 
         {/* ================= TOP HEADER BAR ================= */}
@@ -214,7 +250,7 @@ export default function Weather() {
             </span>
           </div>
 
-          {/* Center: Minimalist Floating Pill (Exact 4 icons from Dribbble shot) */}
+          {/* Center: Minimalist Floating Pill (Exact 4 icons) */}
           <div className="relative">
             {!isSearchOpen ? (
               <nav className="glass-pill flex items-center px-3.5 py-1.5 rounded-full gap-3 shadow-inner">
@@ -230,7 +266,7 @@ export default function Weather() {
                   </svg>
                 </button>
 
-                {/* 2. Search Icon (opens expandable search textbox & button) */}
+                {/* 2. Search Icon */}
                 <button
                   onClick={() => setIsSearchOpen(true)}
                   className="text-slate-400 hover:text-white transition-colors"
@@ -270,7 +306,7 @@ export default function Weather() {
                 </button>
               </nav>
             ) : (
-              /* Expandable search textbox and button fulfilling Requirements 4 & 10 */
+              /* Expandable search textbox and button */
               <form
                 onSubmit={handleSearchSubmit}
                 className="glass-pill flex items-center px-2 py-1 rounded-full gap-1.5 shadow-xl animate-fade-in border border-white/25"
@@ -303,14 +339,12 @@ export default function Weather() {
 
           {/* Right: Date & Time + User Profile Avatar */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Live Clock: 28 Aug | 11:52 */}
             <div className="text-xs font-mono text-slate-300 tracking-wider">
               <span>{currentDate}</span>
               <span className="mx-1.5 opacity-40">|</span>
               <span className="text-white font-medium">{currentTime}</span>
             </div>
 
-            {/* Profile Avatar */}
             <div className="flex items-center gap-2 pl-3 border-l border-white/10">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop"
@@ -372,7 +406,7 @@ export default function Weather() {
                 </button>
               </div>
 
-              {/* Location & UV Badges (exact match to screenshot) */}
+              {/* Location, UV & Humidity Badges */}
               <div className="flex items-center gap-3 mt-3">
                 <button
                   onClick={() => setIsSearchOpen(true)}
@@ -388,7 +422,13 @@ export default function Weather() {
 
                 <div className="flex items-center gap-1 text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
                   <span className="text-slate-300 font-medium">UV Ind.</span>
-                  <span className="text-white">{uvIndex}</span>
+                  <span className="text-white font-mono">{uvIndex}</span>
+                </div>
+
+                {/* Humidity badge */}
+                <div className="flex items-center gap-1 text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                  <span className="text-slate-300 font-medium">Humidity</span>
+                  <span className="text-white font-mono">{humidity}%</span>
                 </div>
               </div>
             </div>
@@ -405,7 +445,6 @@ export default function Weather() {
               sunset={sunsetTime}
               sunriseTimestamp={sunriseTimestamp}
               sunsetTimestamp={sunsetTimestamp}
-              timezoneOffset={timezoneOffset}
             />
           </aside>
         </section>

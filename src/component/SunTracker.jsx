@@ -1,32 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 export default function SunTracker({
   sunrise = "05:48",
   sunset = "18:32",
   sunriseTimestamp = null,
   sunsetTimestamp = null,
-  timezoneOffset = 0, // timezone in seconds from API
 }) {
   // Calculate sun position progress strictly from API timestamps
-  const calculateApiProgress = () => {
+  const calculateApiProgress = useCallback(() => {
     if (sunriseTimestamp && sunsetTimestamp) {
-      // Local time in target city based on timezone
       const nowUtc = Math.floor(Date.now() / 1000);
-      const targetNow = nowUtc; // or nowUtc + timezoneOffset if using city-local time
-
-      if (targetNow <= sunriseTimestamp) {
-        return 0.06; // Pre-sunrise
-      }
-      if (targetNow >= sunsetTimestamp) {
-        return 0.94; // Post-sunset
-      }
+      if (nowUtc <= sunriseTimestamp) return 0.06;
+      if (nowUtc >= sunsetTimestamp) return 0.94;
       const totalDaylight = sunsetTimestamp - sunriseTimestamp;
-      const elapsed = targetNow - sunriseTimestamp;
-      const ratio = elapsed / totalDaylight;
-      // Clamp between 0.06 and 0.94 along the arc
+      const elapsed = nowUtc - sunriseTimestamp;
+      const ratio = elapsed / (totalDaylight || 1);
       return Math.min(Math.max(ratio, 0.06), 0.94);
     }
-    // Fallback: estimate based on current local hours
+    // Fallback: estimate based on current hours
     const now = new Date();
     const currentMins = now.getHours() * 60 + now.getMinutes();
     const [srH, srM] = sunrise.split(":").map(Number);
@@ -35,28 +26,23 @@ export default function SunTracker({
     const ssTotal = (ssH || 18) * 60 + (ssM || 0);
     if (currentMins <= srTotal) return 0.06;
     if (currentMins >= ssTotal) return 0.94;
-    return (currentMins - srTotal) / (ssTotal - srTotal);
-  };
+    return (currentMins - srTotal) / ((ssTotal - srTotal) || 1);
+  }, [sunriseTimestamp, sunsetTimestamp, sunrise, sunset]);
 
   const [currentProgress, setCurrentProgress] = useState(calculateApiProgress);
-  const [isLiveApiMode, setIsLiveApiMode] = useState(true);
 
   // Keep progress in sync when API data updates
   useEffect(() => {
-    const apiProg = calculateApiProgress();
-    setCurrentProgress(apiProg);
-  }, [sunriseTimestamp, sunsetTimestamp, sunrise, sunset]);
+    setCurrentProgress(calculateApiProgress());
+  }, [calculateApiProgress]);
 
-  // Subtle live floating pulse around real API sun position
+  // Subtle live periodic update around real API sun position
   useEffect(() => {
-    if (!isLiveApiMode) return;
     const interval = setInterval(() => {
-      const base = calculateApiProgress();
-      // gentle organic micro-pulse around the true API position
-      setCurrentProgress(base);
+      setCurrentProgress(calculateApiProgress());
     }, 15000);
     return () => clearInterval(interval);
-  }, [isLiveApiMode, sunriseTimestamp, sunsetTimestamp]);
+  }, [calculateApiProgress]);
 
   // Polar coordinates for semicircle: center (120, 90), radius 70
   // angle goes from Math.PI (sunrise) to 0 (sunset)
