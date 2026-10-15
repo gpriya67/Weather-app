@@ -12,18 +12,97 @@
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #0b0f15;
+    background-color: #080c14;
     color: #f1f5f9;
     overflow-x: hidden;
   }
 }
 
+/* ================= THEME SYSTEMS ================= */
+:root {
+  --accent-color: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.4);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-bg: rgba(22, 27, 34, 0.65);
+}
+
+/* 1. Cupertino Frosted Glass Theme */
+.theme-frosted {
+  --accent-color: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.35);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --card-bg: rgba(18, 24, 38, 0.62);
+  --pill-bg: rgba(255, 255, 255, 0.08);
+}
+
+/* 2. Cyberpunk Neon HUD Theme */
+.theme-cyber {
+  --accent-color: #00f3ff;
+  --accent-glow: rgba(0, 243, 255, 0.5);
+  --card-border: rgba(0, 243, 255, 0.3);
+  --card-bg: rgba(10, 15, 29, 0.82);
+  --pill-bg: rgba(0, 243, 255, 0.1);
+}
+
+.theme-cyber .glass-panel {
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  box-shadow: 0 0 35px -5px rgba(0, 243, 255, 0.25),
+              0 30px 60px -15px rgba(0, 0, 0, 0.85),
+              inset 0 1px 2px rgba(0, 243, 255, 0.35);
+}
+
+.theme-cyber .glass-card {
+  border: 1px solid rgba(0, 243, 255, 0.22);
+  background: rgba(8, 14, 26, 0.75);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(0, 243, 255, 0.06);
+}
+
+/* 3. Nordic Aurora Theme */
+.theme-aurora {
+  --accent-color: #34d399;
+  --accent-glow: rgba(52, 211, 153, 0.4);
+  --card-border: rgba(52, 211, 153, 0.2);
+  --card-bg: rgba(7, 20, 24, 0.68);
+  --pill-bg: rgba(52, 211, 153, 0.09);
+}
+
+.theme-aurora .glass-panel {
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 45px -10px rgba(16, 185, 129, 0.2),
+              0 30px 60px -15px rgba(0, 0, 0, 0.8);
+}
+
+.theme-aurora .glass-card {
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  background: rgba(9, 23, 26, 0.65);
+}
+
+/* 4. Sunset Solstice Theme */
+.theme-sunset {
+  --accent-color: #fb923c;
+  --accent-glow: rgba(251, 146, 60, 0.45);
+  --card-border: rgba(251, 146, 60, 0.25);
+  --card-bg: rgba(30, 16, 26, 0.7);
+  --pill-bg: rgba(251, 146, 60, 0.1);
+}
+
+.theme-sunset .glass-panel {
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  box-shadow: 0 0 40px -8px rgba(249, 115, 22, 0.25),
+              0 30px 60px -15px rgba(0, 0, 0, 0.8);
+}
+
+.theme-sunset .glass-card {
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  background: rgba(28, 14, 22, 0.65);
+}
+
 /* Glassmorphism Styles */
 .glass-panel {
-  background: rgba(22, 27, 34, 0.62);
+  background: var(--card-bg);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--card-border);
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.65),
               inset 0 1px 1px rgba(255, 255, 255, 0.18),
               inset 0 -1px 1px rgba(0, 0, 0, 0.4);
@@ -33,7 +112,7 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--card-border);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4),
               inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
@@ -42,12 +121,14 @@
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--card-border);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-pill:hover {
   background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 /* Atmospheric lightning flash animation */
@@ -82,61 +163,126 @@
 /* Atmospheric cloud slow drift */
 @keyframes cloudDrift1 {
   0% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1.02);
   }
   50% {
-    transform: translate(-30px, -15px) scale(1.05);
+    transform: translate(-30px, -15px) scale(1.06);
   }
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1.02);
   }
 }
 
 @keyframes cloudDrift2 {
   0% {
-    transform: translate(0, 0) scale(1.03);
+    transform: translate(0, 0) scale(1.04);
   }
   50% {
-    transform: translate(25px, 12px) scale(0.98);
+    transform: translate(25px, 12px) scale(1.0);
   }
   100% {
-    transform: translate(0, 0) scale(1.03);
+    transform: translate(0, 0) scale(1.04);
   }
 }
 
 .animate-cloud-drift-1 {
-  animation: cloudDrift1 24s ease-in-out infinite;
+  animation: cloudDrift1 26s ease-in-out infinite;
 }
 
 .animate-cloud-drift-2 {
-  animation: cloudDrift2 32s ease-in-out infinite;
+  animation: cloudDrift2 34s ease-in-out infinite;
 }
 
 /* Rain drop animation */
 @keyframes rainFall {
   0% {
-    transform: translateY(-100px) skewX(-15deg);
+    transform: translateY(-80px) skewX(-14deg);
     opacity: 0;
   }
   15% {
-    opacity: 0.6;
+    opacity: 0.65;
   }
   90% {
-    opacity: 0.6;
+    opacity: 0.65;
   }
   100% {
-    transform: translateY(110vh) skewX(-15deg);
+    transform: translateY(110vh) skewX(-14deg);
     opacity: 0;
   }
 }
 
 .rain-drop {
   position: absolute;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(186, 218, 255, 0.65));
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(186, 218, 255, 0.7));
   width: 1.5px;
   border-radius: 9999px;
   animation: rainFall linear infinite;
   pointer-events: none;
+}
+
+/* Snowflake floating animation */
+@keyframes snowFall {
+  0% {
+    transform: translateY(-40px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(105vh) translateX(45px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.snowflake {
+  position: absolute;
+  color: #ffffff;
+  pointer-events: none;
+  animation: snowFall linear infinite;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+}
+
+/* Aurora Shimmering Wave */
+@keyframes auroraWave {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.15) translate(-30px, 20px);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.55;
+  }
+}
+
+.animate-aurora-1 {
+  animation: auroraWave 16s ease-in-out infinite alternate;
+}
+
+.animate-aurora-2 {
+  animation: auroraWave 22s ease-in-out infinite alternate-reverse;
+}
+
+/* Radar Sweep Beam */
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radarSweep 4s linear infinite;
+  transform-origin: 50% 50%;
 }
 
 /* Wave shimmer for wind status */
@@ -203,28 +349,18 @@
   animation: sunFloatMove 18s ease-in-out infinite;
 }
 
-/* Semicircle Arc Sun Motion */
-@keyframes arcSunTrace {
-  0% {
-    stroke-dashoffset: 220;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
 }
